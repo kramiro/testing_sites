@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lee Mi Carta</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: #111;
+      font-family: Arial, sans-serif;
+      background: #f6d32d;
+    }
+
+    .wall {
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 0, #ffe97e, transparent 35%);
+    }
+
+    header {
+      position: absolute;
+      z-index: 2;
+      top: 7vh;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font: clamp(3.7rem, 8vw, 8rem)/.9 Georgia, serif;
+      letter-spacing: -.08em;
+    }
+
+    header p {
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      font-size: .75rem;
+      font-weight: bold;
+    }
+
+    .note {
+      position: absolute;
+      width: 150px;
+      min-height: 105px;
+      padding: 18px;
+      background: linear-gradient(135deg, #fffdf2, #f5e9c7);
+      box-shadow: 2px 3px #cfb75d, 0 14px 24px #0003;
+      font: italic 1rem/1.35 Georgia, serif;
+      clip-path: polygon(2% 2%, 98% 0, 100% 94%, 96% 100%, 4% 98%, 0 6%);
+      animation: float 28s linear infinite;
+    }
+
+    .note:nth-of-type(1) { left: 7%; bottom: -20%; rotate: -7deg; }
+    .note:nth-of-type(2) { left: 23%; bottom: -75%; rotate: 6deg; animation-duration: 35s; }
+    .note:nth-of-type(3) { right: 8%; bottom: -38%; rotate: 7deg; animation-duration: 31s; }
+    .note:nth-of-type(4) { right: 28%; bottom: -95%; rotate: -5deg; animation-duration: 38s; }
+
+    @keyframes float {
+      to { transform: translateY(-135vh); }
+    }
+
+    .copy {
+      position: absolute;
+      top: 42%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(480px, 88vw);
+      text-align: center;
+      font: 1.3rem/1.5 Georgia, serif;
+    }
+
+    form {
+      position: fixed;
+      z-index: 5;
+      bottom: 4vh;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      width: min(940px, calc(100% - 28px));
+      padding: 13px 16px 13px 22px;
+      border-radius: 999px;
+      background: #111;
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 40px;
+      border: 0;
+      outline: 0;
+      resize: vertical;
+      background: transparent;
+      color: white;
+      font: 1rem Arial;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 28px;
+      background: #f6d32d;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    dialog {
+      border: 0;
+      background: transparent;
+      width: min(560px, 90vw);
+    }
+
+    .letter {
+      margin: auto;
+      min-height: 260px;
+      padding: 70px 45px;
+      background: #fff6dd;
+      box-shadow: 0 20px 50px #0004;
+      font: 1.3rem/1.5 Georgia, serif;
+    }
+
+    .status {
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wall">
+    <header>
+      <h1>Lee Mi Carta</h1>
+      <p>Aquí también habitan las cosas que sentimos</p>
+    </header>
+
+    <div class="note">A veces también me siento lejos de mí.</div>
+    <div class="note">Todo lo que siento también cuenta.</div>
+    <div class="note">Hay días más difíciles que otros.</div>
+    <div class="note">Hoy solo quiero respirar.</div>
+
+    <p class="copy">
+      Escribe eso que no pudiste decir. Aquí puedes dejarlo ir, de forma anónima.
+    </p>
+
+    <form id="form">
+      <textarea id="message" placeholder="Escribe lo que no pudiste decir…"></textarea>
+      <button type="submit">Enviar</button>
+    </form>
+
+    <dialog id="modal">
+      <article class="letter" id="letter"></article>
+      <p class="status" id="status"></p>
+    </dialog>
+  </main>
+
+  <script>
+    const form = document.querySelector("#form");
+    const message = document.querySelector("#message");
+    const modal = document.querySelector("#modal");
+    const letter = document.querySelector("#letter");
+    const status = document.querySelector("#status");
+
+    const encouragements = [
+      "Gracias por dejarlo aquí.",
+      "Lo que sientes importa.",
+      "No tienes que cargarlo todo a solas.",
+      "Respira: ya diste un paso.",
+      "Tu voz también merece espacio."
+    ];
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const text = message.value.trim();
+      if (!text) return;
+
+      letter.textContent = text;
+      status.textContent = "Tu carta se está sellando…";
+      modal.showModal();
+
+      setTimeout(() => {
+        modal.close();
+
+        const note = document.createElement("div");
+        note.className = "note";
+        note.textContent = text;
+        note.style.left = (5 + Math.random() * 80) + "%";
+        note.style.animationDuration = (22 + Math.random() * 16) + "s";
+
+        document.querySelector(".wall").appendChild(note);
+        message.value = "";
+
+        alert(encouragements[Math.floor(Math.random() * encouragements.length)]);
+      }, 1800);
+    });
+
+    message.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+  </script>
+</body>
+</html>
