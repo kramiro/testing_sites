@@ -1,608 +1,609 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="description" content="Un espacio anónimo para escribir y soltar lo que pesa.">
-  <title>Lee Mi Carta</title>
-
-  <style>
-    :root {
-      --yellow: #f7d436;
-      --ink: #181610;
-      --paper: #fff8df;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-      background: var(--yellow);
-      color: var(--ink);
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      overflow: hidden;
-    }
-
-    button {
-      border: 0;
-      border-radius: 999px;
-      padding: 12px 20px;
-      background: var(--yellow);
-      color: var(--ink);
-      font-weight: 800;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .wall {
-      position: relative;
-      min-height: 100dvh;
-      overflow: hidden;
-      background: var(--yellow);
-    }
-
-    header {
-      position: absolute;
-      z-index: 4;
-      top: max(6vh, 34px);
-      width: 100%;
-      padding: 0 18px;
-      text-align: center;
-    }
-
-    h1 {
-      margin: 0;
-      font: clamp(3.4rem, 13vw, 7rem)/.86 Georgia, serif;
-      letter-spacing: -.085em;
-    }
-
-    header p {
-      margin: 14px 0 0;
-      font-size: clamp(.7rem, 2.4vw, .8rem);
-      font-weight: 700;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-    }
-
-    .support {
-      position: fixed;
-      z-index: 20;
-      top: max(14px, env(safe-area-inset-top));
-      right: 16px;
-      padding: 9px 14px;
-      border: 1px solid #17150f;
-      background: #ffffff77;
-      color: var(--ink);
-      backdrop-filter: blur(8px);
-    }
-
-    .copy {
-      position: absolute;
-      z-index: 3;
-      top: 38%;
-      left: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 11px;
-      width: min(430px, 80vw);
-      margin: 0;
-      transform: translateX(-50%);
-      text-align: center;
-      font: clamp(1.08rem, 4.6vw, 1.35rem)/1.4 Georgia, serif;
-    }
-
-    .heart {
-      font-size: 2.8rem;
-      filter: drop-shadow(0 8px 10px #8c6d0b44);
-    }
-
-    .mode {
-      position: absolute;
-      z-index: 5;
-      top: 54%;
-      left: 50%;
-      display: flex;
-      width: min(350px, 86vw);
-      padding: 4px;
-      transform: translateX(-50%);
-      border: 1px solid #1b1811;
-      border-radius: 999px;
-      background: #ffffff66;
-      backdrop-filter: blur(8px);
-    }
-
-    .mode button {
-      flex: 1;
-      padding: 10px 12px;
-      background: transparent;
-    }
-
-    .mode button.active {
-      background: var(--ink);
-      color: white;
-    }
-
-    .note {
-      --rotation: -5deg;
-      --drift: 0px;
-
-      position: absolute;
-      z-index: 1;
-      bottom: -38vh;
-      width: clamp(112px, 28vw, 188px);
-      min-height: 110px;
-      padding: 21px 16px 35px;
-      clip-path: polygon(
-        3% 2%,
-        97% 0,
-        100% 7%,
-        98% 95%,
-        91% 100%,
-        4% 97%,
-        0 89%,
-        1% 8%
-      );
-      border: 1px solid #d5bd75;
-      background: linear-gradient(135deg, #fffefa, #f0e0a8);
-      box-shadow:
-        0 9px 0 #8f73202b,
-        16px 22px 32px #5a430d2b;
-      color: #342c20;
-      font: italic clamp(.82rem, 3.3vw, 1rem)/1.38 Georgia, serif;
-      transform-style: preserve-3d;
-      animation: float var(--duration, 32s) linear infinite;
-    }
-
-    .note::before {
-      content: "";
-      position: absolute;
-      top: -7px;
-      left: 29%;
-      width: 48px;
-      height: 17px;
-      background: #d8b957a8;
-      transform: rotate(-5deg);
-    }
-
-    .note-actions {
-      position: absolute;
-      right: 9px;
-      bottom: 8px;
-      display: flex;
-      gap: 4px;
-    }
-
-    .note-actions button {
-      padding: 4px 7px;
-      border: 0;
-      background: #ffffff88;
-      color: #51472e;
-      font: 11px Arial;
-    }
-
-    .note-actions button:hover {
-      background: white;
-    }
-
-    @keyframes float {
-      0% {
-        transform:
-          translate3d(0, 0, 0)
-          rotate(var(--rotation))
-          rotateY(-8deg);
-      }
-
-      50% {
-        transform:
-          translate3d(var(--drift), -72vh, 30px)
-          rotate(calc(var(--rotation) + 5deg))
-          rotateY(10deg);
-      }
-
-      100% {
-        transform:
-          translate3d(calc(var(--drift) * -1), -145vh, 0)
-          rotate(var(--rotation))
-          rotateY(-8deg);
-      }
-    }
-
-    .composer {
-      position: fixed;
-      z-index: 12;
-      left: 50%;
-      bottom: max(16px, env(safe-area-inset-bottom));
-      display: flex;
-      align-items: flex-end;
-      gap: 9px;
-      width: min(760px, calc(100% - 22px));
-      padding: 10px 11px 10px 17px;
-      transform: translateX(-50%);
-      border: 1px solid black;
-      border-radius: 24px;
-      background: var(--ink);
-      box-shadow: 0 12px 28px #0004;
-    }
-
-    textarea {
-      flex: 1;
-      min-height: 34px;
-      max-height: 142px;
-      resize: none;
-      border: 0;
-      outline: 0;
-      overflow: auto;
-      background: transparent;
-      color: white;
-      font: 16px/1.4 Arial;
-    }
-
-    textarea::placeholder {
-      color: #d6d1c4;
-    }
-
-    .sending {
-      opacity: .55;
-      pointer-events: none;
-    }
-
-    dialog {
-      width: min(580px, 94vw);
-      border: 0;
-      padding: 0;
-      overflow: visible;
-      background: transparent;
-    }
-
-    dialog::backdrop {
-      background: #161106b8;
-      backdrop-filter: blur(6px);
-    }
-
-    .stage {
-      position: relative;
-      display: grid;
-      height: 350px;
-      place-items: center;
-      perspective: 950px;
-    }
-
-    .letter,
-    .envelope {
-      position: absolute;
-      width: min(450px, 100%);
-      height: 270px;
-      border: 1px solid #ffffff99;
-      border-radius: 32px;
-      box-shadow: 0 28px 65px #0007;
-    }
-
-    .letter {
-      z-index: 3;
-      padding: 67px 43px 34px;
-      overflow: auto;
-      background: linear-gradient(135deg, #fffdf4, #f8e8ac);
-      color: #463719;
-      font: 1.15rem/1.5 Georgia, serif;
-      transform-origin: 50% 90%;
-      transition:
-        opacity .65s,
-        transform .8s cubic-bezier(.2, .8, .2, 1);
-    }
-
-    .letter::before {
-      content: "Para quien necesitaba decirlo:";
-      position: absolute;
-      top: 26px;
-      left: 43px;
-      color: #8c7041;
-      font: italic .82rem Georgia, serif;
-    }
-
-    .envelope {
-      z-index: 2;
-      overflow: hidden;
-      opacity: 0;
-      background: linear-gradient(145deg, #fff4c6, #eacb75);
-      transform: translateY(18px) scale(.88);
-      transition:
-        opacity .4s,
-        transform .7s;
-    }
-
-    .envelope::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      clip-path: polygon(0 0, 100% 0, 50% 57%);
-      background: linear-gradient(135deg, #fff8d9, #e9c568);
-      transform: rotateX(-180deg);
-      transform-origin: top;
-      transition: transform .65s;
-    }
-
-    .envelope::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(
-          35deg,
-          transparent 49%,
-          #9f7d3528 50%,
-          transparent 51%
-        ),
-        linear-gradient(
-          -35deg,
-          transparent 49%,
-          #9f7d3528 50%,
-          transparent 51%
-        );
-    }
-
-    .seal {
-      z-index: 5;
-      display: grid;
-      width: 66px;
-      height: 66px;
-      place-items: center;
-      border: 3px solid #f5d772;
-      border-radius: 50%;
-      opacity: 0;
-      background: #1c1810;
-      box-shadow: 0 8px 18px #0005;
-      color: var(--yellow);
-      font-size: 29px;
-      transform: scale(.45);
-      transition:
-        opacity .25s .55s,
-        transform .35s .55s;
-    }
-
-    .sealed .letter {
-      opacity: 0;
-      transform:
-        translateY(35px)
-        scale(.42)
-        rotateX(82deg);
-    }
-
-    .sealed .envelope {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-
-    .sealed .envelope::before {
-      transform: rotateX(0);
-    }
-
-    .sealed .seal {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .sent {
-      animation: vanish .65s forwards;
-    }
-
-    @keyframes vanish {
-      to {
-        opacity: 0;
-        transform:
-          translateY(-35px)
-          scale(.78)
-          rotateZ(5deg);
-      }
-    }
-
-    .status {
-      color: white;
-      text-align: center;
-      font-size: .95rem;
-    }
-
-    .panel {
-      position: fixed;
-      z-index: 40;
-      top: 50%;
-      left: 50%;
-      display: grid;
-      width: min(500px, 90vw);
-      min-height: 250px;
-      padding: 30px;
-      place-items: center;
-      border: 1px solid #ffffff99;
-      border-radius: 34px;
-      opacity: 0;
-      background: #fff6d75e;
-      box-shadow: 0 25px 70px #0007;
-      backdrop-filter: blur(20px);
-      color: white;
-      text-align: center;
-      pointer-events: none;
-      transform: translate(-50%, -45%) scale(.94);
-      transition: .4s;
-    }
-
-    .panel.show {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .panel .emoji {
-      font-size: 3.5rem;
-    }
-
-    .panel h2 {
-      margin: 7px 0;
-      font: clamp(2.5rem, 11vw, 4.2rem)/1 Georgia, serif;
-      letter-spacing: -.06em;
-    }
-
-    .panel p {
-      max-width: 390px;
-      margin: 4px 0 16px;
-      line-height: 1.45;
-    }
-
-    .panel button {
-      background: white;
-    }
-
-    .crisis {
-      background: #201d18e8;
-    }
-
-    .crisis h2 {
-      font-size: clamp(2rem, 8vw, 3rem);
-    }
-
-    .crisis a {
-      display: inline-block;
-      margin: 4px;
-      color: white;
-      font-weight: 700;
-    }
-
-    .notice {
-      position: fixed;
-      z-index: 9;
-      bottom: 88px;
-      left: 50%;
-      width: min(600px, 90vw);
-      margin: 0;
-      color: #443b24;
-      font-size: .76rem;
-      text-align: center;
-      transform: translateX(-50%);
-    }
-
-    .toast {
-      position: fixed;
-      z-index: 60;
-      bottom: 105px;
-      left: 50%;
-      padding: 12px 18px;
-      border-radius: 14px;
-      opacity: 0;
-      background: #201d18;
-      color: white;
-      transform: translate(-50%, 20px);
-      transition: .3s;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
-
-    @media (max-width: 520px) {
-      header {
-        top: 62px;
-      }
-
-      .copy {
-        top: 34%;
-      }
-
-      .mode {
-        top: 51%;
-      }
-
-      .note {
-        width: 105px;
-        min-height: 96px;
-        padding: 16px 12px 32px;
-        font-size: .76rem;
-      }
-
-      .composer {
-        bottom: max(11px, env(safe-area-inset-bottom));
-      }
-
-      .notice {
-        display: none;
-      }
-
-      .stage {
-        height: 315px;
-      }
-
-      .letter,
-      .envelope {
-        height: 235px;
-      }
-
-      .letter {
-        padding: 56px 27px 25px;
-      }
-
-      .letter::before {
-        left: 27px;
-      }
-
-      .support {
-        padding: 8px 11px;
-        font-size: .76rem;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .note {
-        display: none;
-        animation: none;
-      }
-
-      .letter,
-      .envelope,
-      .seal,
-      .panel,
-      .toast {
-        transition: none;
-      }
-
-      .sent {
-        animation: none;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Un espacio anónimo para escribir y soltar lo que pesa.">
+<title>Lee Mi Carta</title>
+
+<style>
+:root{
+  --yellow:#f7d436;
+  --ink:#181610;
+  --paper:#fff1bd;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--yellow);
+  color:var(--ink);
+  font-family:Arial,sans-serif;
+}
+
+body{overflow:hidden}
+
+button{
+  border:0;
+  border-radius:999px;
+  padding:12px 20px;
+  background:var(--yellow);
+  color:var(--ink);
+  font-weight:800;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+
+.wall{
+  position:relative;
+  min-height:100dvh;
+  overflow:hidden;
+  background:var(--yellow);
+}
+
+header{
+  position:absolute;
+  z-index:4;
+  top:max(6vh,34px);
+  width:100%;
+  padding:0 18px;
+  text-align:center;
+}
+
+h1{
+  margin:0;
+  font:clamp(3.4rem,13vw,7rem)/.86 Georgia,serif;
+  letter-spacing:-.085em;
+}
+
+header p{
+  margin:14px 0 0;
+  font-size:clamp(.7rem,2.4vw,.8rem);
+  font-weight:700;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
+
+.support{
+  position:fixed;
+  z-index:20;
+  top:max(14px,env(safe-area-inset-top));
+  right:16px;
+  padding:9px 14px;
+  border:1px solid #17150f;
+  background:#ffffff77;
+  color:var(--ink);
+  backdrop-filter:blur(8px);
+}
+
+.copy{
+  position:absolute;
+  z-index:3;
+  top:40%;
+  left:50%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:11px;
+  width:min(430px,80vw);
+  margin:0;
+  transform:translateX(-50%);
+  text-align:center;
+  font:clamp(1.08rem,4.6vw,1.35rem)/1.4 Georgia,serif;
+}
+
+.heart{
+  font-size:2.8rem;
+  filter:drop-shadow(0 8px 10px #8c6d0b44);
+}
+
+/* Sticky note estilo papel rasgado */
+.note{
+  --rotation:-5deg;
+  --drift:0px;
+
+  position:absolute;
+  z-index:1;
+  bottom:-40vh;
+  width:clamp(126px,17vw,210px);
+  min-height:128px;
+  padding:43px 19px 22px;
+
+  clip-path:polygon(
+    0 5%,4% 3%,8% 4%,13% 2%,18% 4%,24% 1%,30% 3%,
+    36% 2%,42% 4%,48% 1%,55% 3%,61% 2%,68% 4%,
+    74% 2%,81% 3%,87% 1%,93% 4%,100% 2%,
+    98% 10%,100% 18%,98% 27%,100% 36%,98% 45%,
+    100% 54%,98% 63%,100% 72%,98% 81%,100% 90%,
+    96% 98%,88% 97%,80% 100%,72% 97%,64% 99%,
+    56% 97%,48% 100%,40% 97%,32% 99%,24% 97%,
+    16% 100%,8% 97%,2% 99%,0 91%,2% 82%,0 73%,
+    2% 64%,0 55%,2% 46%,0 37%,2% 28%,0 19%,2% 11%
+  );
+
+  background:
+    radial-gradient(circle at 20% 14%,#fff9dcbb,transparent 22%),
+    linear-gradient(145deg,#fff5c9,#ecd588);
+
+  border:0;
+  box-shadow:9px 18px 28px #664b0b46;
+  color:#3b3020;
+  font:italic clamp(.84rem,1.4vw,1.03rem)/1.42 Georgia,serif;
+  transform-style:preserve-3d;
+  animation:float var(--duration,32s) linear infinite;
+}
+
+/* Cinta */
+.note::before{
+  content:"";
+  position:absolute;
+  z-index:2;
+  top:-3px;
+  left:50%;
+  width:58px;
+  height:23px;
+  background:linear-gradient(100deg,#e1bb55cc,#f6d77ed9);
+  box-shadow:0 2px 4px #0002;
+  transform:translateX(-50%) rotate(-4deg);
+  clip-path:polygon(2% 7%,98% 0,96% 92%,4% 100%);
+}
+
+.note-text{
+  display:block;
+  max-height:112px;
+  overflow:hidden;
+}
+
+.note-actions{
+  position:absolute;
+  z-index:4;
+  top:12px;
+  right:12px;
+  display:flex;
+  gap:5px;
+}
+
+.note-actions button{
+  display:grid;
+  width:27px;
+  height:27px;
+  padding:0;
+  place-items:center;
+  border:1px solid #6f603633;
+  background:#ffffff77;
+  color:#615536;
+  opacity:.72;
+  transition:.2s;
+}
+
+.note-actions button:hover,
+.note-actions button:focus-visible{
+  opacity:1;
+  background:white;
+}
+
+.note-actions svg{
+  width:15px;
+  height:15px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+@keyframes float{
+  0%{
+    transform:
+      translate3d(0,0,0)
+      rotate(var(--rotation))
+      rotateY(-7deg);
+  }
+
+  50%{
+    transform:
+      translate3d(var(--drift),-72vh,30px)
+      rotate(calc(var(--rotation) + 5deg))
+      rotateY(9deg);
+  }
+
+  100%{
+    transform:
+      translate3d(calc(var(--drift) * -1),-145vh,0)
+      rotate(var(--rotation))
+      rotateY(-7deg);
+  }
+}
+
+/* Barra inferior */
+.composer-wrap{
+  position:fixed;
+  z-index:12;
+  left:50%;
+  bottom:max(9px,env(safe-area-inset-bottom));
+  width:min(760px,calc(100% - 22px));
+  transform:translateX(-50%);
+}
+
+.composer{
+  display:flex;
+  align-items:flex-end;
+  gap:9px;
+  width:100%;
+  padding:10px 11px 10px 17px;
+  border:1px solid black;
+  border-radius:24px;
+  background:var(--ink);
+  box-shadow:0 12px 28px #0004;
+}
+
+textarea{
+  flex:1;
+  min-height:34px;
+  max-height:142px;
+  resize:none;
+  border:0;
+  outline:0;
+  overflow:auto;
+  background:transparent;
+  color:white;
+  font:16px/1.4 Arial;
+}
+
+textarea::placeholder{
+  color:#d6d1c4;
+}
+
+.sending{
+  opacity:.55;
+  pointer-events:none;
+}
+
+.notice{
+  margin:8px 4px 0;
+  color:#443b24;
+  font-size:.76rem;
+  text-align:center;
+}
+
+/* Carta que se cierra */
+dialog{
+  width:min(580px,94vw);
+  border:0;
+  padding:0;
+  overflow:visible;
+  background:transparent;
+}
+
+dialog::backdrop{
+  background:#161106b8;
+  backdrop-filter:blur(6px);
+}
+
+.stage{
+  position:relative;
+  display:grid;
+  height:350px;
+  place-items:center;
+  perspective:950px;
+}
+
+.letter,
+.envelope{
+  position:absolute;
+  width:min(450px,100%);
+  height:270px;
+  border:1px solid #ffffff99;
+  border-radius:32px;
+  box-shadow:0 28px 65px #0007;
+}
+
+.letter{
+  z-index:3;
+  padding:67px 43px 34px;
+  overflow:auto;
+  background:linear-gradient(135deg,#fffdf4,#f8e8ac);
+  color:#463719;
+  font:1.15rem/1.5 Georgia,serif;
+  transform-origin:50% 90%;
+  transition:
+    opacity .65s,
+    transform .8s cubic-bezier(.2,.8,.2,1);
+}
+
+.letter::before{
+  content:"Para quien necesitaba decirlo:";
+  position:absolute;
+  top:26px;
+  left:43px;
+  color:#8c7041;
+  font:italic .82rem Georgia,serif;
+}
+
+.envelope{
+  z-index:2;
+  overflow:hidden;
+  opacity:0;
+  background:linear-gradient(145deg,#fff4c6,#eacb75);
+  transform:translateY(18px) scale(.88);
+  transition:
+    opacity .4s,
+    transform .7s;
+}
+
+.envelope::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  clip-path:polygon(0 0,100% 0,50% 57%);
+  background:linear-gradient(135deg,#fff8d9,#e9c568);
+  transform:rotateX(-180deg);
+  transform-origin:top;
+  transition:transform .65s;
+}
+
+.envelope::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(
+      35deg,
+      transparent 49%,
+      #9f7d3528 50%,
+      transparent 51%
+    ),
+    linear-gradient(
+      -35deg,
+      transparent 49%,
+      #9f7d3528 50%,
+      transparent 51%
+    );
+}
+
+.seal{
+  z-index:5;
+  display:grid;
+  width:66px;
+  height:66px;
+  place-items:center;
+  border:3px solid #f5d772;
+  border-radius:50%;
+  opacity:0;
+  background:#1c1810;
+  box-shadow:0 8px 18px #0005;
+  color:var(--yellow);
+  font-size:29px;
+  transform:scale(.45);
+  transition:
+    opacity .25s .55s,
+    transform .35s .55s;
+}
+
+.sealed .letter{
+  opacity:0;
+  transform:
+    translateY(35px)
+    scale(.42)
+    rotateX(82deg);
+}
+
+.sealed .envelope{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+
+.sealed .envelope::before{
+  transform:rotateX(0);
+}
+
+.sealed .seal{
+  opacity:1;
+  transform:scale(1);
+}
+
+.sent{
+  animation:vanish .65s forwards;
+}
+
+@keyframes vanish{
+  to{
+    opacity:0;
+    transform:
+      translateY(-35px)
+      scale(.78)
+      rotateZ(5deg);
+  }
+}
+
+.status{
+  color:white;
+  text-align:center;
+  font-size:.95rem;
+}
+
+/* Pop-ups */
+.panel{
+  position:fixed;
+  z-index:40;
+  top:50%;
+  left:50%;
+  display:grid;
+  width:min(500px,90vw);
+  min-height:250px;
+  padding:30px;
+  place-items:center;
+  border:1px solid #ffffff99;
+  border-radius:34px;
+  opacity:0;
+  background:#fff6d75e;
+  box-shadow:0 25px 70px #0007;
+  backdrop-filter:blur(20px);
+  color:white;
+  text-align:center;
+  pointer-events:none;
+  transform:translate(-50%,-45%) scale(.94);
+  transition:.4s;
+}
+
+.panel.show{
+  opacity:1;
+  pointer-events:auto;
+  transform:translate(-50%,-50%) scale(1);
+}
+
+.panel .emoji{
+  font-size:3.5rem;
+}
+
+.panel h2{
+  margin:7px 0;
+  font:clamp(2.5rem,11vw,4.2rem)/1 Georgia,serif;
+  letter-spacing:-.06em;
+}
+
+.panel p{
+  max-width:390px;
+  margin:4px 0 16px;
+  line-height:1.45;
+}
+
+.panel button{
+  background:white;
+}
+
+.crisis{
+  background:#201d18e8;
+}
+
+.crisis h2{
+  font-size:clamp(2rem,8vw,3rem);
+}
+
+.crisis a{
+  display:inline-block;
+  margin:4px;
+  color:white;
+  font-weight:700;
+}
+
+.toast{
+  position:fixed;
+  z-index:60;
+  left:50%;
+  bottom:105px;
+  padding:12px 18px;
+  border-radius:14px;
+  opacity:0;
+  background:#201d18;
+  color:white;
+  transform:translate(-50%,20px);
+  transition:.3s;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+@media(max-width:520px){
+  header{
+    top:62px;
+  }
+
+  .copy{
+    top:36%;
+  }
+
+  .note{
+    width:116px;
+    min-height:108px;
+    padding:39px 13px 20px;
+    font-size:.77rem;
+  }
+
+  .note-actions{
+    top:9px;
+    right:9px;
+  }
+
+  .note-actions button{
+    width:24px;
+    height:24px;
+  }
+
+  .composer-wrap{
+    bottom:max(7px,env(safe-area-inset-bottom));
+  }
+
+  .notice{
+    font-size:.69rem;
+  }
+
+  .stage{
+    height:315px;
+  }
+
+  .letter,
+  .envelope{
+    height:235px;
+  }
+
+  .letter{
+    padding:56px 27px 25px;
+  }
+
+  .letter::before{
+    left:27px;
+  }
+
+  .support{
+    padding:8px 11px;
+    font-size:.76rem;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .note{
+    display:none;
+    animation:none;
+  }
+
+  .letter,
+  .envelope,
+  .seal,
+  .panel,
+  .toast{
+    transition:none;
+  }
+
+  .sent{
+    animation:none;
+  }
+}
+</style>
 </head>
 
 <body>
-  <main class="wall" id="wall">
-    <button class="support" id="support" type="button">
-      Necesito apoyo
-    </button>
+<main class="wall" id="wall">
 
-    <header>
-      <h1>Lee Mi Carta</h1>
-      <p>Un lugar para soltar lo que pesa</p>
-    </header>
+  <button class="support" id="support" type="button">
+    Necesito apoyo
+  </button>
 
-    <p class="copy">
-      <span class="heart">💛</span>
-      <span>Siéntete libre de desahogarte.</span>
-    </p>
+  <header>
+    <h1>Lee Mi Carta</h1>
+    <p>Un lugar para soltar lo que pesa</p>
+  </header>
 
-    <div class="mode" role="group" aria-label="Privacidad de la carta">
-      <button type="button" class="active" data-mode="public">
-        Compartir en el muro
-      </button>
+  <p class="copy">
+    <span class="heart">💛</span>
+    <span>Siéntete libre de desahogarte.</span>
+  </p>
 
-      <button type="button" data-mode="private">
-        Solo para mí
-      </button>
-    </div>
-
+  <div class="composer-wrap">
     <form class="composer" id="form">
       <textarea
         id="message"
@@ -617,328 +618,337 @@
     </form>
 
     <p class="notice">
-      Este espacio acompaña, pero no sustituye ayuda profesional.
-      Puedes ocultar o reportar cualquier carta.
+      Los comentarios en el muro son anónimos y se actualizan cada día.
+    </p>
+  </div>
+
+  <dialog id="letterDialog">
+    <div class="stage" id="stage">
+      <article class="letter" id="letter"></article>
+      <div class="envelope"></div>
+      <div class="seal">♡</div>
+    </div>
+
+    <p class="status" id="status" aria-live="polite">
+      Tu carta se cerrará antes de continuar.
+    </p>
+  </dialog>
+
+  <section class="panel" id="success" aria-live="polite">
+    <span class="emoji">💛</span>
+    <h2>Eres valiente</h2>
+
+    <p>
+      Gracias por darte este espacio.
+      Tu carta ya forma parte del muro de hoy.
     </p>
 
-    <dialog id="letterDialog">
-      <div class="stage" id="stage">
-        <article class="letter" id="letter"></article>
-        <div class="envelope"></div>
-        <div class="seal">♡</div>
-      </div>
+    <button type="button" data-close="success">
+      Continuar
+    </button>
+  </section>
 
-      <p class="status" id="status" aria-live="polite">
-        Tu carta se cerrará antes de continuar.
-      </p>
-    </dialog>
+  <section class="panel crisis" id="crisis" aria-live="assertive">
+    <span class="emoji">🫶</span>
 
-    <section class="panel" id="success" aria-live="polite">
-      <span class="emoji">💛</span>
-      <h2>Eres valiente</h2>
-      <p id="successText">Gracias por darte este espacio.</p>
+    <h2>No tienes que atravesarlo a solas</h2>
 
-      <button type="button" data-close="success">
-        Continuar
-      </button>
-    </section>
+    <p id="crisisText">
+      Tu carta no se publicó. Si existe peligro inmediato,
+      contacta a los servicios de emergencia de tu país o
+      busca a una persona de confianza ahora.
+    </p>
 
-    <section class="panel crisis" id="crisis" aria-live="assertive">
-      <span class="emoji">🫶</span>
-      <h2>No tienes que atravesarlo a solas</h2>
+    <a
+      href="https://findahelpline.com"
+      target="_blank"
+      rel="noopener"
+    >
+      Encontrar ayuda en mi país
+    </a>
 
-      <p id="crisisText">
-        Tu carta no se publicó. Si existe peligro inmediato,
-        contacta a los servicios de emergencia de tu país o busca
-        a una persona de confianza ahora.
-      </p>
+    <button type="button" data-close="crisis">
+      Volver
+    </button>
+  </section>
 
-      <a
-        href="https://findahelpline.com"
-        target="_blank"
-        rel="noopener"
-      >
-        Encontrar ayuda en mi país
-      </a>
+  <div class="toast" id="toast" role="status"></div>
+</main>
 
-      <button type="button" data-close="crisis">
-        Volver
-      </button>
-    </section>
+<script>
+const API =
+  "https://lee-mi-carta-api.kevinramiro.workers.dev";
 
-    <div class="toast" id="toast" role="status"></div>
-  </main>
+const MAX_VISIBLE = 18;
+const $ = selector => document.querySelector(selector);
 
-  <script>
-    const API =
-      "https://lee-mi-carta-api.kevinramiro.workers.dev";
+let sending = false;
 
-    const MAX_VISIBLE = 18;
-    const $ = (selector) => document.querySelector(selector);
+const wall = $("#wall");
+const message = $("#message");
+const sendButton = $("#send");
+const dialog = $("#letterDialog");
+const stage = $("#stage");
+const letter = $("#letter");
+const status = $("#status");
+const success = $("#success");
+const crisis = $("#crisis");
+const crisisText = $("#crisisText");
+const toast = $("#toast");
 
-    let mode = "public";
-    let sending = false;
+const eyeOff = `
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M3 3l18 18"/>
+    <path d="M10.6 10.7a2 2 0 002.7 2.7"/>
+    <path d="M9.9 4.2A10.8 10.8 0 0112 4c5 0 9 5 9 5a16 16 0 01-3.1 3.7"/>
+    <path d="M6.2 6.2C4.2 7.5 3 9 3 9s4 5 9 5a8 8 0 003-.6"/>
+  </svg>
+`;
 
-    const wall = $("#wall");
-    const message = $("#message");
-    const sendButton = $("#send");
-    const dialog = $("#letterDialog");
-    const stage = $("#stage");
-    const letter = $("#letter");
-    const status = $("#status");
-    const success = $("#success");
-    const successText = $("#successText");
-    const crisis = $("#crisis");
-    const crisisText = $("#crisisText");
-    const toast = $("#toast");
+const flag = `
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M5 21V4"/>
+    <path d="M5 5c5-3 7 3 14 0v10c-7 3-9-3-14 0"/>
+  </svg>
+`;
 
-    function notify(text) {
-      toast.textContent = text;
-      toast.classList.add("show");
+function notify(text){
+  toast.textContent = text;
+  toast.classList.add("show");
 
-      setTimeout(() => {
-        toast.classList.remove("show");
-      }, 3200);
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3200);
+}
+
+function resizeInput(){
+  message.style.height = "auto";
+  message.style.height =
+    `${Math.min(message.scrollHeight,142)}px`;
+}
+
+function createIconButton(label,icon,action){
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.setAttribute("aria-label",label);
+  button.title = label;
+  button.innerHTML = icon;
+  button.addEventListener("click",action);
+
+  return button;
+}
+
+function addNote(item,number = Math.random() * 100){
+  const notes = document.querySelectorAll(".note");
+
+  if(notes.length >= MAX_VISIBLE){
+    notes[0]?.remove();
+  }
+
+  const note = document.createElement("article");
+  note.className = "note";
+  note.dataset.id = item.id || "";
+
+  const text = document.createElement("span");
+  text.className = "note-text";
+  text.textContent =
+    typeof item === "string"
+      ? item
+      : item.text || "";
+
+  const actions = document.createElement("div");
+  actions.className = "note-actions";
+
+  actions.append(
+    createIconButton(
+      "Ocultar carta",
+      eyeOff,
+      () => note.remove()
+    )
+  );
+
+  if(item.id){
+    actions.append(
+      createIconButton(
+        "Reportar carta",
+        flag,
+        () => reportNote(item.id,note)
+      )
+    );
+  }
+
+  note.append(text,actions);
+
+  note.style.left =
+    `${3 + (number * 17) % 78}%`;
+
+  note.style.setProperty(
+    "--rotation",
+    `${-9 + (number * 5) % 18}deg`
+  );
+
+  note.style.setProperty(
+    "--duration",
+    `${27 + (number * 3) % 17}s`
+  );
+
+  note.style.setProperty(
+    "--drift",
+    `${-17 + (number * 9) % 34}px`
+  );
+
+  wall.append(note);
+}
+
+async function reportNote(id,note){
+  note.remove();
+  notify("Carta reportada y ocultada. Gracias.");
+
+  try{
+    await fetch(`${API}/letters/${id}/report`,{
+      method:"POST"
+    });
+  }catch{
+    // La carta continúa oculta en este dispositivo.
+  }
+}
+
+async function loadLetters(){
+  try{
+    const response = await fetch(`${API}/letters`);
+    const data = await response.json();
+
+    if(!response.ok){
+      throw new Error();
     }
 
-    function resizeInput() {
-      message.style.height = "auto";
-      message.style.height =
-        `${Math.min(message.scrollHeight, 142)}px`;
-    }
+    (data.letters || [])
+      .slice(0,MAX_VISIBLE)
+      .forEach(addNote);
 
-    function addNote(item, number = Math.random() * 100) {
-      const notes = document.querySelectorAll(".note");
+  }catch{
+    notify("El muro está temporalmente desconectado.");
+  }
+}
 
-      if (notes.length >= MAX_VISIBLE) {
-        notes[0]?.remove();
-      }
+function animateLetter(text){
+  letter.textContent = text;
+  stage.className = "stage";
+  dialog.showModal();
 
-      const note = document.createElement("article");
-      note.className = "note";
-      note.dataset.id = item.id || "";
+  status.textContent =
+    "Tu carta se está cerrando…";
 
-      const noteText = document.createElement("span");
-      noteText.textContent = item.text;
-      note.append(noteText);
+  return new Promise(resolve => {
+    setTimeout(() => {
+      stage.classList.add("sealed");
+      status.textContent = "Carta sellada.";
+    },600);
 
-      const actions = document.createElement("div");
-      actions.className = "note-actions";
+    setTimeout(() => {
+      stage.classList.add("sent");
+      status.textContent = "Dejándola ir…";
+    },1650);
 
-      const hideButton = document.createElement("button");
-      hideButton.type = "button";
-      hideButton.textContent = "Ocultar";
-      hideButton.addEventListener("click", () => note.remove());
-
-      actions.append(hideButton);
-
-      if (item.id) {
-        const reportButton = document.createElement("button");
-        reportButton.type = "button";
-        reportButton.textContent = "Reportar";
-
-        reportButton.addEventListener("click", () => {
-          reportNote(item.id, note);
-        });
-
-        actions.append(reportButton);
-      }
-
-      note.append(actions);
-
-      note.style.left = `${3 + (number * 17) % 78}%`;
-
-      note.style.setProperty(
-        "--rotation",
-        `${-9 + (number * 5) % 18}deg`
-      );
-
-      note.style.setProperty(
-        "--duration",
-        `${27 + (number * 3) % 17}s`
-      );
-
-      note.style.setProperty(
-        "--drift",
-        `${-17 + (number * 9) % 34}px`
-      );
-
-      wall.append(note);
-    }
-
-    async function reportNote(id, note) {
-      note.remove();
-      notify("Carta reportada y ocultada. Gracias.");
-
-      try {
-        await fetch(`${API}/letters/${id}/report`, {
-          method: "POST"
-        });
-      } catch {
-        // La carta permanece oculta en este dispositivo.
-      }
-    }
-
-    async function loadLetters() {
-      try {
-        const response = await fetch(`${API}/letters`);
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "No se pudo cargar el muro.");
-        }
-
-        (data.letters || [])
-          .slice(0, MAX_VISIBLE)
-          .forEach(addNote);
-      } catch {
-        notify("El muro está temporalmente desconectado.");
-      }
-    }
-
-    function animateLetter(text) {
-      letter.textContent = text;
+    setTimeout(() => {
+      dialog.close();
       stage.className = "stage";
-      dialog.showModal();
+      resolve();
+    },2250);
+  });
+}
 
-      status.textContent = "Tu carta se está cerrando…";
+async function sendLetter(){
+  const text = message.value.trim();
 
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          stage.classList.add("sealed");
-          status.textContent = "Carta sellada.";
-        }, 600);
+  if(!text || sending){
+    message.focus();
+    return;
+  }
 
-        setTimeout(() => {
-          stage.classList.add("sent");
-          status.textContent = "Dejándola ir…";
-        }, 1650);
+  sending = true;
+  sendButton.classList.add("sending");
 
-        setTimeout(() => {
-          dialog.close();
-          stage.className = "stage";
-          resolve();
-        }, 2250);
-      });
-    }
-
-    async function sendLetter() {
-      const text = message.value.trim();
-
-      if (!text || sending) {
-        message.focus();
-        return;
-      }
-
-      sending = true;
-      sendButton.classList.add("sending");
-
-      if (mode === "private") {
-        await animateLetter(text);
-
-        message.value = "";
-        resizeInput();
-
-        successText.textContent =
-          "Tu carta fue privada: no se guardó ni se publicó.";
-
-        success.classList.add("show");
-        sending = false;
-        sendButton.classList.remove("sending");
-        return;
-      }
-
-      try {
-        const response = await fetch(`${API}/letters`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ text })
-        });
-
-        const data = await response.json();
-
-        if (data.supportRequired) {
-          crisisText.textContent =
-            `${data.message} Si existe peligro inmediato, ` +
-            "contacta a emergencias o a una persona de confianza ahora.";
-
-          crisis.classList.add("show");
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error(
-            data.error || "No se pudo publicar la carta."
-          );
-        }
-
-        await animateLetter(text);
-
-        addNote({
-          id: data.id,
-          text
-        });
-
-        message.value = "";
-        resizeInput();
-
-        successText.textContent =
-          "Gracias por darte este espacio. " +
-          "Tu carta ya forma parte del muro de hoy.";
-
-        success.classList.add("show");
-      } catch (error) {
-        notify(
-          error.message || "No pudimos enviar la carta."
-        );
-      } finally {
-        sending = false;
-        sendButton.classList.remove("sending");
-      }
-    }
-
-    document.querySelectorAll(".mode button").forEach((button) => {
-      button.addEventListener("click", () => {
-        mode = button.dataset.mode;
-
-        document.querySelectorAll(".mode button").forEach((item) => {
-          item.classList.toggle("active", item === button);
-        });
-
-        message.placeholder =
-          mode === "private"
-            ? "Esta carta no se guardará…"
-            : "Escribe lo que necesitas soltar…";
-      });
+  try{
+    const response = await fetch(`${API}/letters`,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({text})
     });
 
-    $("#form").addEventListener("submit", (event) => {
-      event.preventDefault();
-      sendLetter();
-    });
+    const data = await response.json();
 
-    message.addEventListener("input", resizeInput);
+    if(data.supportRequired){
+      crisisText.textContent =
+        data.message +
+        " Si existe peligro inmediato, contacta a emergencias " +
+        "o a una persona de confianza ahora.";
 
-    message.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendLetter();
-      }
-    });
-
-    document.querySelectorAll("[data-close]").forEach((button) => {
-      button.addEventListener("click", () => {
-        $(`#${button.dataset.close}`).classList.remove("show");
-      });
-    });
-
-    $("#support").addEventListener("click", () => {
       crisis.classList.add("show");
+      return;
+    }
+
+    if(!response.ok){
+      throw new Error(
+        data.error ||
+        "No se pudo publicar la carta."
+      );
+    }
+
+    await animateLetter(text);
+
+    addNote({
+      id:data.id,
+      text
     });
 
-    loadLetters();
-  </script>
+    message.value = "";
+    resizeInput();
+    success.classList.add("show");
+
+  }catch(error){
+    notify(
+      error.message ||
+      "No pudimos enviar la carta."
+    );
+
+  }finally{
+    sending = false;
+    sendButton.classList.remove("sending");
+  }
+}
+
+$("#form").addEventListener("submit",event => {
+  event.preventDefault();
+  sendLetter();
+});
+
+message.addEventListener("input",resizeInput);
+
+message.addEventListener("keydown",event => {
+  if(event.key === "Enter" && !event.shiftKey){
+    event.preventDefault();
+    sendLetter();
+  }
+});
+
+document
+  .querySelectorAll("[data-close]")
+  .forEach(button => {
+    button.addEventListener("click",() => {
+      $(`#${button.dataset.close}`)
+        .classList.remove("show");
+    });
+  });
+
+$("#support").addEventListener("click",() => {
+  crisis.classList.add("show");
+});
+
+loadLetters();
+</script>
 </body>
 </html>
