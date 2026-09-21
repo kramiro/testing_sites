@@ -5,52 +5,56 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Lee Mi Carta</title>
   <style>
-    :root{--yellow:#f7d436;--ink:#18150f;--paper:#fff9e8}
+    :root{--yellow:#f7d436;--ink:#19160f;--paper:#fff9e7}
     *{box-sizing:border-box}
     body{margin:0;min-height:100dvh;overflow:hidden;background:var(--yellow);color:var(--ink);font-family:Arial,sans-serif}
-    .wall{position:relative;isolation:isolate;min-height:100dvh;overflow:hidden;background:radial-gradient(circle at 50% -10%,#fff8b5,transparent 40%),linear-gradient(125deg,#fbe159,#f0c323)}
-    .wall:before{content:"";position:absolute;inset:0;opacity:.15;background:repeating-linear-gradient(0deg,transparent 0 5px,#6f5711 6px 7px,transparent 8px 13px);mix-blend-mode:multiply;pointer-events:none}
+    .wall{position:relative;min-height:100dvh;overflow:hidden;background:var(--yellow)}
     header{position:absolute;z-index:3;top:max(7vh,40px);width:100%;padding:0 18px;text-align:center}
     h1{margin:0;font:clamp(3.4rem,13vw,7.2rem)/.88 Georgia,serif;letter-spacing:-.085em}
     header p{margin:15px 0 0;font-size:clamp(.63rem,2.4vw,.76rem);letter-spacing:.16em;text-transform:uppercase;font-weight:700}
-    .copy{position:absolute;z-index:2;top:42%;left:50%;width:min(430px,80vw);margin:0;transform:translateX(-50%);text-align:center;font:clamp(1.05rem,4.6vw,1.28rem)/1.45 Georgia,serif}
+    .copy{position:absolute;z-index:2;top:42%;left:50%;display:flex;flex-direction:column;align-items:center;gap:12px;width:min(430px,80vw);margin:0;transform:translateX(-50%);text-align:center;font:clamp(1.05rem,4.6vw,1.28rem)/1.45 Georgia,serif}
+    .heart{font-size:2.8rem;filter:drop-shadow(0 8px 10px #8c6d0b44)}
 
     .note{--r:-5deg;--x:0px;position:absolute;z-index:1;bottom:-40vh;width:clamp(112px,28vw,190px);min-height:112px;padding:21px 17px 20px;clip-path:polygon(3% 2%,97% 0,100% 7%,98% 95%,91% 100%,4% 97%,0 89%,1% 8%);background:linear-gradient(125deg,#fffefa,#f1e5bd);border:1px solid #d7c17f;box-shadow:0 9px 0 #8f73202e,16px 22px 32px #5a430d33;color:#342c20;font:italic clamp(.8rem,3.3vw,1.04rem)/1.38 Georgia,serif;transform-style:preserve-3d;animation:float var(--t,32s) linear infinite}
-    .note:before{content:"";position:absolute;top:-7px;left:29%;width:48px;height:17px;background:#d8b957a8;transform:rotate(-5deg);box-shadow:0 2px 3px #0002}
+    .note:before{content:"";position:absolute;top:-7px;left:29%;width:48px;height:17px;background:#d8b957a8;transform:rotate(-5deg)}
     .note:after{content:"";position:absolute;right:0;bottom:0;width:25px;height:25px;background:linear-gradient(135deg,transparent 48%,#dbc991 50%,#fff5d5 54%)}
     @keyframes float{0%{transform:translate3d(0,0,0) rotate(var(--r)) rotateY(-8deg)}50%{transform:translate3d(var(--x),-72vh,30px) rotate(calc(var(--r) + 5deg)) rotateY(10deg)}100%{transform:translate3d(calc(var(--x)*-1),-145vh,0) rotate(var(--r)) rotateY(-8deg)}}
 
     .composer{position:fixed;z-index:10;left:50%;bottom:max(18px,env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:9px;width:min(760px,calc(100% - 22px));padding:10px 11px 10px 17px;transform:translateX(-50%);border:1px solid #000;border-radius:24px;background:var(--ink);box-shadow:0 12px 28px #0004}
     textarea{flex:1;min-height:32px;max-height:142px;resize:none;border:0;outline:0;background:transparent;color:#fff;font:16px/1.4 Arial}
     textarea::placeholder{color:#d6d1c4}
-    button{border:0;border-radius:999px;padding:12px 20px;background:var(--yellow);color:var(--ink);font-weight:800;cursor:pointer;touch-action:manipulation}
+    button{border:0;border-radius:999px;padding:12px 20px;background:var(--yellow);color:var(--ink);font-weight:800;cursor:pointer}
     .sending{opacity:.55;pointer-events:none}
 
     dialog{width:min(560px,92vw);border:0;padding:0;background:transparent;overflow:visible}
-    dialog:backdrop{background:#17120794;backdrop-filter:blur(4px)}
+    dialog::backdrop{background:#161106a8;backdrop-filter:blur(5px)}
     .stage{position:relative;height:340px;display:grid;place-items:center;perspective:900px}
-    .letter,.envelope{position:absolute;width:min(440px,100%);height:260px;border:1px solid #c7ae71;box-shadow:0 26px 58px #0008}
-    .letter{z-index:2;padding:64px 42px 33px;overflow:auto;background:repeating-linear-gradient(0deg,transparent 0 28px,#ad914e35 29px 30px),#fff8dd;font:1.15rem/1.5 Georgia;color:#342b1e;transform-origin:50% 90%;transition:.7s}
-    .letter:before{content:"Para quien necesitaba decirlo:";position:absolute;top:23px;color:#8c7041;font:italic .82rem Georgia}
-    .envelope{z-index:1;opacity:0;background:linear-gradient(35deg,transparent 49%,#9a7d4729 50%,transparent 51%),linear-gradient(-35deg,transparent 49%,#9a7d4729 50%,transparent 51%),#efd494;transition:opacity .5s}
-    .seal{z-index:4;display:grid;place-items:center;width:62px;height:62px;border:3px solid #efd494;border-radius:50%;opacity:0;background:var(--ink);color:var(--yellow);font-size:26px;box-shadow:0 6px 13px #0005;transform:scale(.55);transition:.3s .65s}
-    .sealed .letter{opacity:0;transform:translateY(18px) scale(.45) rotateX(76deg)}
-    .sealed .envelope{opacity:1}
+
+    .letter,.envelope{position:absolute;width:min(440px,100%);height:260px;border-radius:32px;border:1px solid #fff9;box-shadow:0 28px 65px #0006}
+    .letter{z-index:3;padding:67px 43px 34px;overflow:auto;color:#463719;background:linear-gradient(135deg,#fffdf4,#f8e8ac);font:1.15rem/1.5 Georgia,serif;transform-origin:50% 90%;transition:opacity .65s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+    .letter:before{content:"Para quien necesitaba decirlo:";position:absolute;top:26px;left:43px;color:#8c7041;font:italic .82rem Georgia,serif}
+    .envelope{z-index:2;overflow:hidden;opacity:0;background:linear-gradient(145deg,#fff4c6,#eacb75);transform:translateY(18px) scale(.88);transition:opacity .4s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+    .envelope:before{content:"";position:absolute;inset:0;clip-path:polygon(0 0,100% 0,50% 57%);background:linear-gradient(135deg,#fff8d9,#e9c568);transform-origin:top;transform:rotateX(-180deg);transition:transform .65s ease}
+    .envelope:after{content:"";position:absolute;inset:0;background:linear-gradient(35deg,transparent 49%,#9f7d3528 50%,transparent 51%),linear-gradient(-35deg,transparent 49%,#9f7d3528 50%,transparent 51%)}
+    .seal{z-index:5;display:grid;place-items:center;width:66px;height:66px;border:3px solid #f5d772;border-radius:50%;opacity:0;background:#1c1810;color:#f7d436;font-size:29px;box-shadow:0 8px 18px #0005;transform:scale(.45);transition:opacity .25s .55s,transform .35s .55s}
+    .sealed .letter{opacity:0;transform:translateY(35px) scale(.42) rotateX(82deg)}
+    .sealed .envelope{opacity:1;transform:translateY(0) scale(1)}
+    .sealed .envelope:before{transform:rotateX(0)}
     .sealed .seal{opacity:1;transform:scale(1)}
     .status{color:#fff;text-align:center;font-size:.9rem}
 
-    .encourage{position:fixed;z-index:30;top:50%;left:50%;display:grid;place-items:center;width:min(470px,88vw);min-height:210px;padding:26px;border:1px solid #fff9;transform:translate(-50%,-45%) scale(.94);border-radius:30px;background:#fff8df4d;box-shadow:0 22px 65px #0005;backdrop-filter:blur(18px);color:#fff;text-align:center;opacity:0;pointer-events:none;transition:.4s}
+    .encourage{position:fixed;z-index:30;top:50%;left:50%;display:grid;place-items:center;width:min(490px,88vw);min-height:235px;padding:28px;border:1px solid #fff9;border-radius:32px;background:#fff6d755;box-shadow:0 25px 70px #0007;backdrop-filter:blur(18px);color:#fff;text-align:center;transform:translate(-50%,-45%) scale(.94);opacity:0;pointer-events:none;transition:.4s}
     .encourage.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
-    .encourage i{font-style:normal;font-size:3.2rem}
-    .encourage h2{margin:6px 0;font:clamp(2.3rem,11vw,4rem)/1 Georgia,serif;letter-spacing:-.06em}
+    .encourage i{font-style:normal;font-size:3.5rem}
+    .encourage h2{margin:7px 0;font:clamp(2.5rem,11vw,4.3rem)/1 Georgia,serif;letter-spacing:-.065em}
     .encourage p{margin:0;font-size:1rem}
-    .encourage button{margin-top:17px;background:#fff;color:var(--ink)}
+    .encourage button{margin-top:18px;background:#fff;color:var(--ink)}
 
     @media(max-width:480px){
       header{top:48px}.copy{top:39%;width:74vw}
       .note{width:105px;min-height:94px;padding:16px 12px;font-size:.76rem}
       .stage{height:310px}.letter,.envelope{height:230px}
-      .letter{padding:55px 27px 25px}
+      .letter{padding:55px 27px 25px}.letter:before{left:27px}
       .composer{bottom:max(12px,env(safe-area-inset-bottom))}
     }
   </style>
@@ -62,7 +66,10 @@
       <p>Un lugar para soltar lo que pesa</p>
     </header>
 
-    <p class="copy">Eso que no dijiste también merece existir. Déjalo aquí, sin nombre y sin juicio.</p>
+    <p class="copy">
+      <span class="heart">💛</span>
+      Siéntete libre de desahogarte.
+    </p>
 
     <form class="composer" id="form">
       <textarea id="message" rows="1" placeholder="Escribe lo que necesitas soltar…" aria-label="Escribe tu carta"></textarea>
@@ -88,8 +95,8 @@
 
   <script>
     const API = "https://lee-mi-carta-api.kevinramiro.workers.dev/letters";
-
     const $ = (selector) => document.querySelector(selector);
+
     const wall = $("#wall");
     const form = $("#form");
     const message = $("#message");
